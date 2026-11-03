@@ -1,0 +1,449 @@
+
+!DOCTYPE html
+html lang=id
+head
+meta charset=UTF-8
+meta name=viewport content=width=device-width, initial-scale=1
+titleBracketMaker Badmintontitle
+style
+root {
+  --bg#f3f6fb; --card#fff; --ink#172033;
+  --muted#68758b; --primary#1769e0; --line#dce3ed;
+  --green#16834a; --red#c33b3b;
+}
+ { box-sizingborder-box; }
+body {
+  margin0; backgroundvar(--bg); colorvar(--ink);
+  font-familyArial,sans-serif;
+}
+header {
+  background#12366c; colorwhite; padding22px 16px;
+}
+header h1 { margin0 0 6px; font-size24px; }
+header p { margin0; color#d7e6ff; font-size14px; }
+main { max-width1100px; marginauto; padding16px; }
+.card {
+  backgroundvar(--card); border1px solid var(--line);
+  border-radius14px; padding16px; margin-bottom15px;
+  box-shadow0 3px 12px #1720330a;
+}
+h2 { font-size18px; margin0 0 14px; }
+h3 { font-size16px; margin0 0 10px; }
+label { displayblock; font-size13px; font-weightbold; margin10px 0 6px; }
+input,select,textarea {
+  width100%; padding11px; border1px solid var(--line);
+  border-radius9px; fontinherit; backgroundwhite;
+}
+textarea { min-height125px; resizevertical; }
+button {
+  border0; border-radius9px; padding11px 14px;
+  backgroundvar(--primary); colorwhite; font-weightbold;
+  cursorpointer; margin4px 3px 4px 0;
+}
+button.secondary { background#e8eef8; color#203657; }
+button.danger { background#b93636; }
+button.success { backgroundvar(--green); }
+buttondisabled { opacity.4; cursornot-allowed; }
+.row { displayflex; flex-wrapwrap; gap10px; align-itemscenter; }
+.row   { flex1; min-width130px; }
+.small { colorvar(--muted); font-size13px; line-height1.5; }
+.hidden { displaynone !important; }
+.tournament-list { displayflex; flex-wrapwrap; gap8px; }
+.tournament-item {
+  background#eaf1fc; color#183967; border1px solid #d3e1f6;
+  padding9px 12px; border-radius9px; cursorpointer;
+  font-weightbold;
+}
+.tournament-item.active { background#1769e0; colorwhite; }
+.team {
+  padding9px; background#f3f6fb; border-radius8px;
+  margin6px 0; font-size14px;
+}
+.bracket-wrap { overflow-xauto; padding8px 0 16px; }
+.bracket {
+  displayflex; gap18px; align-itemsstretch; min-widthmax-content;
+}
+.round {
+  width220px; displayflex; flex-directioncolumn;
+  justify-contentspace-around; gap12px;
+}
+.round-title {
+  text-aligncenter; font-weightbold; color#36577f;
+  padding8px; background#e9f0fa; border-radius8px;
+}
+.match {
+  backgroundwhite; border1px solid var(--line);
+  border-radius10px; padding8px;
+  box-shadow0 2px 7px #1720330b;
+}
+.match-label { colorvar(--muted); font-size11px; margin-bottom6px; }
+.match button {
+  displayblock; width100%; text-alignleft; margin4px 0;
+  background#f1f4f8; color#25334a; font-weightnormal;
+  border1px solid transparent; padding9px; font-size13px;
+}
+.match button.winner { background#dff5e7; border-color#72c58d; color#125a31; font-weightbold; }
+.match buttondisabled { opacity1; cursordefault; }
+.match buttonnot(disabled)hover { border-colorvar(--primary); }
+.result { margin-top12px; line-height1.8; }
+.podium {
+  displaygrid; grid-template-columnsrepeat(3,1fr); gap8px;
+}
+.podium  div {
+  background#f3f6fb; border-radius10px; padding12px;
+  text-aligncenter; font-size13px;
+}
+.podium strong { displayblock; font-size18px; margin-bottom6px; }
+footer { text-aligncenter; colorvar(--muted); padding20px; font-size12px; }
+@media(max-width600px) {
+  header h1 { font-size21px; }
+  main { padding10px; }
+  .card { padding13px; }
+  .podium { grid-template-columns1fr; }
+}
+@media print {
+  header, .no-print, footer { displaynone !important; }
+  body { backgroundwhite; }
+  main { max-widthnone; padding0; }
+  .card { box-shadownone; break-insideavoid; }
+  .bracket-wrap { overflowvisible; }
+}
+style
+head
+body
+header
+  h1🏸 BracketMaker Badmintonh1
+  pPengundian pasangan dan bagan turnamen otomatisp
+header
+
+main
+  section class=card no-print
+    h2📋 Daftar Turnamenh2
+    div class=row
+      input id=newName placeholder=Nama turnamen, misalnya Piala Kemerdekaan
+      select id=newCategory
+        option value=putraGanda Putraoption
+        option value=campuranGanda Campuranoption
+      select
+      button onclick=createTournament()+ Buat Turnamenbutton
+    div
+    div id=tournamentList class=tournament-list style=margin-top12pxdiv
+  section
+
+  section id=workspace class=hidden
+    section class=card no-print
+      div class=row
+        div
+          h2 id=activeTitleTurnamenh2
+          div id=activeCategory class=smalldiv
+        div
+        div
+          button class=secondary onclick=renameTournament()✏️ Ganti Namabutton
+          button class=danger onclick=deleteTournament()🗑️ Hapusbutton
+        div
+      div
+    section
+
+    section class=card no-print
+      h21. Masukkan Pesertah2
+      div id=putraInput
+        labelDaftar nama pemain putra (satu nama per baris)label
+        textarea id=menNames placeholder=Andi&#10;Budi&#10;Candra&#10;Donitextarea
+      div
+      div id=campuranInput class=hidden
+        labelDaftar nama pemain putra (satu nama per baris)label
+        textarea id=mixedMen placeholder=Andi&#10;Budi&#10;Candratextarea
+        labelDaftar nama pemain putri (satu nama per baris)label
+        textarea id=mixedWomen placeholder=Ani&#10;Bella&#10;Citratextarea
+      div
+      p class=smallMasukkan nama peserta. Setiap nama harus ditulis pada baris terpisah.p
+      button onclick=generateTeams()🎲 Acak Pasanganbutton
+      div id=teamOutput class=resultdiv
+    section
+
+    section class=card no-print
+      h22. Undian Baganh2
+      p class=smallSetelah pasangan terbentuk, buat undian untuk menyusun bagan gugur secara acak.p
+      button onclick=makeBracket()🏆 Buat Bagan Turnamenbutton
+      button class=secondary onclick=exportJSON()⬇️ Ekspor Data JSONbutton
+      button class=secondary onclick=window.print()🖨️ Cetak Baganbutton
+    section
+
+    section id=bracketSection class=card hidden
+      h23. Bagan Pertandinganh2
+      p class=smallKlik nama pasangan pemenang pada setiap pertandingan untuk meloloskannya ke babak berikutnya.p
+      div id=bracketOutput class=bracket-wrapdiv
+    section
+
+    section id=podiumSection class=card hidden
+      h2🏅 Hasil Turnamenh2
+      div id=podiumOutput class=podiumdiv
+      div id=thirdPlayoff style=margin-top15pxdiv
+    section
+  section
+main
+
+footerBracketMaker Badminton · Data tersimpan di browser perangkat inifooter
+
+script
+const STORAGE_KEY = bracketmaker_badminton_v1;
+let tournaments = loadData();
+let activeId = null;
+
+function loadData() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY))  []; }
+  catch(e) { return []; }
+}
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(tournaments));
+}
+function current() {
+  return tournaments.find(t = t.id === activeId);
+}
+function escapeHTML(s) {
+  return String(s).replace([&']g, c = ({
+    &&amp;, &lt;, &gt;,
+    ''&quot;, '&#39;
+  })[c]);
+}
+function shuffle(arr) {
+  let a = [...arr];
+  for (let i=a.length-1; i0; i--) {
+    let j = Math.floor(Math.random()(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+function namesFrom(id) {
+  return document.getElementById(id).value
+    .split(rn).map(x=x.trim()).filter(Boolean);
+}
+function createTournament() {
+  const name = document.getElementById(newName).value.trim();
+  const category = document.getElementById(newCategory).value;
+  if (!name) return alert(Isi nama turnamen terlebih dahulu.);
+  const t = {
+    id Date.now().toString() + Math.random().toString(16).slice(2),
+    name, category, teams[], rounds[], thirdnull
+  };
+  tournaments.push(t);
+  activeId = t.id;
+  document.getElementById(newName).value = ;
+  saveData(); render();
+}
+function selectTournament(id) {
+  activeId = id; render();
+}
+function renameTournament() {
+  const t=current(); if(!t) return;
+  const n=prompt(Masukkan nama turnamen baru,t.name);
+  if(n && n.trim()) { t.name=n.trim(); saveData(); render(); }
+}
+function deleteTournament() {
+  const t=current(); if(!t) return;
+  if(!confirm('Hapus turnamen '+t.name+'')) return;
+  tournaments=tournaments.filter(x=x.id!==activeId);
+  activeId=tournaments.lengthtournaments[0].idnull;
+  saveData(); render();
+}
+function render() {
+  const list=document.getElementById(tournamentList);
+  list.innerHTML=;
+  tournaments.forEach(t={
+    const b=document.createElement(button);
+    b.className=tournament-item+(t.id===activeId active);
+    b.textContent=(t.category===putraPutra · Campuran · )+t.name;
+    b.onclick=()=selectTournament(t.id);
+    list.appendChild(b);
+  });
+  const t=current();
+  document.getElementById(workspace).classList.toggle(hidden,!t);
+  if(!t) return;
+  document.getElementById(activeTitle).textContent=t.name;
+  document.getElementById(activeCategory).textContent=
+    t.category===putraKategori Ganda PutraKategori Ganda Campuran;
+  document.getElementById(putraInput).classList.toggle(hidden,t.category!==putra);
+  document.getElementById(campuranInput).classList.toggle(hidden,t.category!==campuran);
+  document.getElementById(menNames).value=(t.men[]).join(n);
+  document.getElementById(mixedMen).value=(t.men[]).join(n);
+  document.getElementById(mixedWomen).value=(t.women[]).join(n);
+  renderTeams();
+  renderBracket();
+}
+function generateTeams() {
+  const t=current(); if(!t) return;
+  let teams=[];
+  if(t.category===putra) {
+    const names=namesFrom(menNames);
+    if(names.length4  names.length%2!==0)
+      return alert(Ganda Putra membutuhkan minimal 4 pemain dan jumlah pemain harus genap.);
+    if(new Set(names.map(x=x.toLowerCase())).size!==names.length)
+      return alert(Ada nama pemain yang terduplikasi. Periksa kembali.);
+    t.men=names; t.women=[];
+    const a=shuffle(names);
+    for(let i=0;ia.length;i+=2)
+      teams.push({idteam+i,namea[i]+  +a[i+1]});
+  } else {
+    const men=namesFrom(mixedMen), women=namesFrom(mixedWomen);
+    if(men.length2  women.length2)
+      return alert(Ganda Campuran membutuhkan minimal 2 putra dan 2 putri.);
+    if(men.length!==women.length)
+      return alert(Jumlah pemain putra dan putri harus sama.);
+    const all=[...men,...women];
+    if(new Set(all.map(x=x.toLowerCase())).size!==all.length)
+      return alert(Pastikan tidak ada nama yang terduplikasi.);
+    t.men=men; t.women=women;
+    const a=shuffle(men), b=shuffle(women);
+    for(let i=0;ia.length;i++)
+      teams.push({idteam+i,namea[i]+  +b[i]});
+  }
+  t.teams=teams;
+  t.rounds=[]; t.third=null;
+  saveData(); render();
+}
+function renderTeams() {
+  const t=current(), out=document.getElementById(teamOutput);
+  if(!t  !t.teams.length) { out.innerHTML=; return; }
+  out.innerHTML=h3Hasil pasangan (+t.teams.length+ tim)h3+
+    t.teams.map((x,i)='div class=teamTim '+(i+1)+' '+escapeHTML(x.name)+'div').join();
+}
+function makeBracket() {
+  const t=current(); if(!t) return;
+  if(t.teams.length2) return alert(Acak pasangan terlebih dahulu.);
+  if(!confirm(Buat undian baru Bagan sebelumnya akan diganti.)) return;
+  const teams=shuffle(t.teams);
+  let size=1;
+  while(sizeteams.length) size=2;
+  const slots=teams.concat(Array(size-teams.length).fill(null));
+  const first=[];
+  for(let i=0;isize;i+=2) {
+    first.push({aslots[i],bslots[i+1],winnernull});
+  }
+  t.rounds=[first];
+  let count=size2;
+  while(count1) {
+    count=Math.floor(count2);
+    t.rounds.push(Array.from({lengthcount},()=({anull,bnull,winnernull})));
+  }
+  t.third={anull,bnull,winnernull};
+  propagate(t);
+  saveData(); render();
+}
+function propagate(t) {
+  for(let r=0;rt.rounds.length;r++) {
+    const round=t.rounds[r];
+    for(let i=0;iround.length;i++) {
+      const m=round[i];
+      if(m.a && !m.b) m.winner=m.a;
+      else if(!m.a && m.b) m.winner=m.b;
+      else if(!m.a && !m.b) m.winner=null;
+      if(rt.rounds.length-1) {
+        const next=t.rounds[r+1][Math.floor(i2)];
+        const slot=i%2===0ab;
+        next[slot]=m.winner;
+        next.winner=null;
+      }
+    }
+  }
+  updateThird(t);
+}
+function updateThird(t) {
+  if(!t.third  t.rounds.length2) return;
+  const semi=t.rounds[t.rounds.length-2];
+  if(semi.length!==2) return;
+  const losers=semi.map(m={
+    if(!m.winner) return null;
+    if(m.a && m.a.id!==m.winner.id) return m.a;
+    if(m.b && m.b.id!==m.winner.id) return m.b;
+    return null;
+  });
+  t.third.a=losers[0]; t.third.b=losers[1];
+  if(!t.third.a  !t.third.b) t.third.winner=null;
+}
+function chooseWinner(roundIndex,matchIndex,slot) {
+  const t=current(); if(!t) return;
+  const m=t.rounds[roundIndex][matchIndex];
+  const chosen=m[slot];
+  if(!chosen) return;
+  m.winner=chosen;
+   Hapus hasil pertandingan berikutnya sebelum menghitung ulang.
+  for(let r=roundIndex+1;rt.rounds.length;r++) {
+    t.rounds[r].forEach(x={x.a=null;x.b=null;x.winner=null;});
+  }
+   Hapus hasil semifinaljuara 3 yang mungkin tidak lagi valid.
+  if(t.third) t.third.winner=null;
+  propagate(t);
+  saveData(); renderBracket(); renderPodium();
+}
+function chooseThird(slot) {
+  const t=current(); if(!t  !t.third) return;
+  t.third.winner=t.third[slot];
+  saveData(); renderBracket(); renderPodium();
+}
+const roundName = (r,total) = {
+  const remaining=total-r;
+  if(remaining===1) return Final;
+  if(remaining===2) return Semifinal;
+  if(remaining===3) return Perempat Final;
+  return Babak +(r+1);
+};
+function matchHTML(m,r,i) {
+  const team=(x,slot)= {
+    if(!x) return 'button disabled— Belum ditentukan —button';
+    const win=m.winner && m.winner.id===x.id;
+    return 'button class='+(winwinner)+' onclick=chooseWinner('+r+','+i+',''+slot+'')'+
+      (win✓ )+escapeHTML(x.name)+'button';
+  };
+  return 'div class=matchdiv class=match-labelPertandingan '+(i+1)+'div'+
+    team(m.a,a)+team(m.b,b)+'div';
+}
+function renderBracket() {
+  const t=current();
+  const section=document.getElementById(bracketSection);
+  const out=document.getElementById(bracketOutput);
+  if(!t  !t.rounds.length) { section.classList.add(hidden); document.getElementById(podiumSection).classList.add(hidden); return; }
+  section.classList.remove(hidden);
+  out.innerHTML='div class=bracket'+t.rounds.map((round,r)=
+    'div class=rounddiv class=round-title'+roundName(r,t.rounds.length)+'div'+
+    round.map((m,i)=matchHTML(m,r,i)).join()+'div'
+  ).join()+'div';
+  renderPodium();
+}
+function renderPodium() {
+  const t=current(); if(!t  !t.rounds.length) return;
+  const final=t.rounds[t.rounds.length-1][0];
+  const champ=final.winner;
+  const runner=champ(final.a.id===champ.idfinal.bfinal.a)null;
+  const third=t.third.winner;
+  const section=document.getElementById(podiumSection);
+  section.classList.remove(hidden);
+  document.getElementById(podiumOutput).innerHTML=
+    'divstrong🥇 Juara 1strong'+(champescapeHTML(champ.name)Belum ditentukan)+'div'+
+    'divstrong🥈 Juara 2strong'+(runnerescapeHTML(runner.name)Belum ditentukan)+'div'+
+    'divstrong🥉 Juara 3strong'+(thirdescapeHTML(third.name)Belum ditentukan)+'div';
+  const thirdBox=document.getElementById(thirdPlayoff);
+  const m=t.third;
+  if(m && m.a && m.b) {
+    thirdBox.innerHTML='h3Perebutan Juara 3h3'+
+      'div class=match'+
+      ['a','b'].map(s={
+        const x=m[s], win=m.winner.id===x.id;
+        return 'button class='+(winwinner)+' onclick=chooseThird(''+s+'')'+
+          (win✓ )+escapeHTML(x.name)+'button';
+      }).join()+'div';
+  } else {
+    thirdBox.innerHTML='p class=smallPerebutan juara 3 tersedia setelah kedua semifinal selesai.p';
+  }
+}
+function exportJSON() {
+  const t=current(); if(!t) return;
+  const blob=new Blob([JSON.stringify(t,null,2)],{typeapplicationjson});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement(a);
+  a.href=url; a.download=t.name.replace([^a-z0-9_-]gi,_)+.json;
+  a.click(); URL.revokeObjectURL(url);
+}
+render();
+script
+body
+html
