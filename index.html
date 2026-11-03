@@ -157,14 +157,18 @@ footer { text-align:center; color:var(--muted); padding:20px; font-size:12px; }
         <textarea id="mixedWomen" placeholder="Ani&#10;Bella&#10;Citra"></textarea>
       </div>
       <p class="small">Masukkan nama peserta. Setiap nama harus ditulis pada baris terpisah.</p>
-      <button onclick="generateTeams()">🎲 Acak Pasangan</button>
+      <button onclick="generateTeams(); countClick('randomClicks')">
+      🎲 Acak Pasangan (<span id="randomCount">0</span>)
+      </button>
       <div id="teamOutput" class="result"></div>
     </section>
 
     <section class="card no-print">
       <h2>2. Undian Bagan</h2>
       <p class="small">Setelah pasangan terbentuk, buat undian untuk menyusun bagan gugur secara acak.</p>
-      <button onclick="makeBracket()">🏆 Buat Bagan Turnamen</button>
+      <button onclick="makeBracket(); countClick('bracketClicks')">
+      🏆 Buat Bagan Turnamen (<span id="bracketCount">0</span>)
+      </button>
       <button class="secondary" onclick="exportJSON()">⬇️ Ekspor Data JSON</button>
       <button class="secondary" onclick="window.print()">🖨️ Cetak Bagan</button>
     </section>
@@ -269,6 +273,7 @@ function render() {
   document.getElementById("mixedWomen").value=(t.women||[]).join("\n");
   renderTeams();
   renderBracket();
+  updateClickCount();
 }
 function generateTeams() {
   const t=current(); if(!t) return;
@@ -457,6 +462,26 @@ function exportJSON() {
   const a=document.createElement("a");
   a.href=url; a.download=t.name.replace(/[^a-z0-9_-]/gi,"_")+".json";
   a.click(); URL.revokeObjectURL(url);
+}
+  function countClick(type) {
+  const t = current();
+  if (!t) return;
+
+  t[type] = (t[type] || 0) + 1;
+
+  saveData();
+  updateClickCount();
+}
+
+function updateClickCount() {
+  const t = current();
+  if (!t) return;
+
+  document.getElementById("randomCount").textContent =
+    t.randomClicks || 0;
+
+  document.getElementById("bracketCount").textContent =
+    t.bracketClicks || 0;
 }
 render();
 </script>
