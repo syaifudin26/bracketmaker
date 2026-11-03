@@ -145,7 +145,7 @@ footer { text-align:center; color:var(--muted); padding:20px; font-size:12px; }
     </section>
 
     <section class="card no-print">
-      <h2>1. Masukkan Peserta</h2>
+      <h2>Masukkan Peserta - <span class="tourName"></span></h2>
       <div id="putraInput">
         <label>Daftar nama pemain putra (satu nama per baris)</label>
         <textarea id="menNames" placeholder="Andi&#10;Budi&#10;Candra&#10;Doni"></textarea>
@@ -164,7 +164,7 @@ footer { text-align:center; color:var(--muted); padding:20px; font-size:12px; }
     </section>
 
     <section class="card no-print">
-      <h2>2. Undian Bagan</h2>
+      <h2>Undian Bagan - <span class="tourName"></span></h2>
       <p class="small">Setelah pasangan terbentuk, buat undian untuk menyusun bagan gugur secara acak.</p>
       <button onclick="makeBracket(); countClick('bracketClicks')">
       🏆 Buat Bagan Turnamen (<span id="bracketCount">0</span>)
@@ -174,13 +174,13 @@ footer { text-align:center; color:var(--muted); padding:20px; font-size:12px; }
     </section>
 
     <section id="bracketSection" class="card hidden">
-      <h2>3. Bagan Pertandingan</h2>
+      <h2>Bagan Pertandingan - <span class="tourName"></span></h2>
       <p class="small">Klik nama pasangan pemenang pada setiap pertandingan untuk meloloskannya ke babak berikutnya.</p>
       <div id="bracketOutput" class="bracket-wrap"></div>
     </section>
 
     <section id="podiumSection" class="card hidden">
-      <h2>🏅 Hasil Turnamen</h2>
+      <h2>🏅 Hasil Turnamen - <span class="tourName"></span></h2>
       <div id="podiumOutput" class="podium"></div>
       <div id="thirdPlayoff" style="margin-top:15px"></div>
     </section>
@@ -264,6 +264,7 @@ function render() {
   document.getElementById("workspace").classList.toggle("hidden",!t);
   if(!t) return;
   document.getElementById("activeTitle").textContent=t.name;
+  updateTournamentName();
   document.getElementById("activeCategory").textContent=
     t.category==="putra"?"Kategori Ganda Putra":"Kategori Ganda Campuran";
   document.getElementById("putraInput").classList.toggle("hidden",t.category!=="putra");
@@ -482,6 +483,14 @@ function updateClickCount() {
 
   document.getElementById("bracketCount").textContent =
     t.bracketClicks || 0;
+}
+  function updateTournamentName() {
+  const t = current();
+  if (!t) return;
+
+  document.querySelectorAll(".tourName").forEach(el => {
+    el.textContent = t.name;
+  });
 }
 render();
 </script>
