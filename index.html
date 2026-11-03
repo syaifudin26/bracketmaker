@@ -330,21 +330,36 @@ function makeBracket() {
   saveData(); render();
 }
 function propagate(t) {
-  for(let r=0;r<t.rounds.length;r++) {
-    const round=t.rounds[r];
-    for(let i=0;i<round.length;i++) {
-      const m=round[i];
-      if(m.a && !m.b) m.winner=m.a;
-      else if(!m.a && m.b) m.winner=m.b;
-      else if(!m.a && !m.b) m.winner=null;
-      if(r<t.rounds.length-1) {
-        const next=t.rounds[r+1][Math.floor(i/2)];
-        const slot=i%2===0?"a":"b";
-        next[slot]=m.winner;
-        next.winner=null;
+  for (let r = 0; r < t.rounds.length; r++) {
+    const round = t.rounds[r];
+
+    // Periksa validitas pemenang setiap pertandingan.
+    for (const m of round) {
+      if (m.a && !m.b) {
+        m.winner = m.a;
+      } else if (!m.a && m.b) {
+        m.winner = m.b;
+      } else if (!m.a && !m.b) {
+        m.winner = null;
+      } else if (
+        m.winner &&
+        m.winner.id !== m.a.id &&
+        m.winner.id !== m.b.id
+      ) {
+        m.winner = null;
       }
     }
+
+    // Teruskan pemenang ke babak selanjutnya.
+    if (r < t.rounds.length - 1) {
+      round.forEach((m, i) => {
+        const next = t.rounds[r + 1][Math.floor(i / 2)];
+        const slot = i % 2 === 0 ? "a" : "b";
+        next[slot] = m.winner;
+      });
+    }
   }
+
   updateThird(t);
 }
 function updateThird(t) {
