@@ -313,27 +313,91 @@ function renderTeams() {
   out.innerHTML="<h3>Hasil pasangan ("+t.teams.length+" tim)</h3>"+
     t.teams.map((x,i)=>'<div class="team">Tim '+(i+1)+': '+escapeHTML(x.name)+'</div>').join("");
 }
+
 function makeBracket() {
-  const t=current(); if(!t) return;
-  if(t.teams.length<2) return alert("Acak pasangan terlebih dahulu.");
-  if(!confirm("Buat undian baru? Bagan sebelumnya akan diganti.")) return;
-  const teams=shuffle(t.teams);
-  let size=1;
-  while(size<teams.length) size*=2;
-  const slots=teams.concat(Array(size-teams.length).fill(null));
-  const first=[];
-  for(let i=0;i<size;i+=2) {
-    first.push({a:slots[i],b:slots[i+1],winner:null});
+  const t = current();
+  if (!t) return;
+  if (t.teams.length < 2) {
+    alert("Acak pasangan terlebih dahulu.");
+    return;
   }
-  t.rounds=[first];
-  let count=size/2;
-  while(count>1) {
-    count=Math.floor(count/2);
-    t.rounds.push(Array.from({length:count},()=>({a:null,b:null,winner:null})));
+  if (!confirm("Buat undian baru? Bagan sebelumnya akan diganti.")) {
+    return;
   }
-  t.third={a:null,b:null,winner:null};
+  // Acak seluruh tim
+  const teams = shuffle(t.teams);
+  // Tentukan ukuran bracket berikutnya
+  let size = 1;
+  while (size < teams.length) {
+    size *= 2;
+  }
+  // Jumlah BYE yang diperlukan
+  const byeCount = size - teams.length;
+  // Jumlah pertandingan babak pertama
+  const matchCount = size / 2;
+  // Tentukan posisi BYE secara merata
+  const byePositions = [];
+  for (let i = 0; i < byeCount; i++) {
+    const position = byeCount === 1
+      ? Math.floor(matchCount / 2)
+      : Math.round(
+          i * (matchCount - 1) / (byeCount - 1)
+        );
+    byePositions.push(position);
+  }
+  // Susun pertandingan babak pertama
+  const firstRound = [];
+  let teamIndex = 0;
+  let byeIndex = 0;
+  for (let i = 0; i < matchCount; i++) {
+    // Pertandingan yang mendapatkan BYE
+    if (byePositions.includes(i)) {
+      const team = teams[teamIndex++];
+      firstRound.push({
+        a: team,
+        b: null,
+        winner: team
+      });
+    } else {
+      // Pertandingan normal
+      const teamA = teams[teamIndex++];
+      const teamB = teams[teamIndex++];
+      firstRound.push({
+        a: teamA,
+        b: teamB,
+        winner: null
+      });
+    }
+  }
+  // Simpan babak pertama
+  t.rounds = [firstRound];
+  // Buat babak selanjutnya
+  let count = matchCount;
+  while (count > 1) {
+    count = count / 2;
+    t.rounds.push(
+      Array.from(
+        { length: count },
+        () => ({
+          a: null,
+          b: null,
+          winner: null
+        })
+      )
+    );
+  }
+  // Reset perebutan juara 3
+  t.third = {
+    a: null,
+    b: null,
+    winner: null
+  };
+  // Teruskan tim BYE ke babak berikutnya
   propagate(t);
-  saveData(); render();
+  // Simpan hasil
+  saveData();
+  // Tampilkan bagan
+  render();
 }
 function propagate(t) {
   for (let r = 0; r < t.rounds.length; r++) {
